@@ -1,13 +1,13 @@
 FROM selenium/standalone-chrome:3.141.59-xenon
 
-LABEL maintainer="Opsdis Consulting AB <info@opsdis.com>"
+LABEL maintainer="Paweł Suwiński <psuw@wp.pl>"
 
 # selenium container leaves us as user 'seluser', but we need to install more stuff
 USER root
 
-# Install nodejs 10 which includes npm
+# Install nodejs 14 which includes npm
 RUN apt-get -qqy update \
-  && curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - \
+  && curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - \
   && apt-get -qqy --no-install-recommends install \
     nodejs \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
