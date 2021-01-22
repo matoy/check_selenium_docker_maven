@@ -26,7 +26,7 @@ parser.add_argument("--timeout", type=int, default=300, help="results waiting ti
 parser.add_argument("path", type=str, help="path to selenium test")
 args = parser.parse_args()
 path = args.path
-timeout = args.timeout
+timeout = abs(args.timeout)
 os.chdir(path)
 
 # Find side file and parse it to get the project name
