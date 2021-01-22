@@ -124,6 +124,23 @@ chmod 777 /opt/plugins/custom/selenium/opsdis.com/out/
 chmod 755 /opt/plugins/custom/selenium/opsdis.com/sides/opsdis.com.side
 ```
 
+Optionally add a runner local configuration file or additional command-line
+arguments to pass, for example:
+
+```
+cat <<EOT > /opt/plugins/custom/selenium/opsdis.com/sides/.options
+--filter MyTestSuite
+EOT
+
+cat <<EOT > /opt/plugins/custom/selenium/opsdis.com/sides/.side.yml
+capabilities:
+  acceptInsecureCerts: true
+EOT
+```
+
+See [Command-line Runner / Run-time configuration](https://www.selenium.dev/selenium-ide/docs/en/introduction/command-line-runner#run-time-configuration).
+
+
 The directory structure should look like this:
 
 ```
@@ -131,6 +148,8 @@ The directory structure should look like this:
 │   ├── out
 │   └── sides
 │       └── opsdis.com.side
+│       └── .side.yml
+│       └── .options
 ```
 
 # Execute the plugin #
