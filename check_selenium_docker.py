@@ -26,7 +26,7 @@ parser.add_argument("--timeout", type=int, default=300, help="results waiting ti
 parser.add_argument("path", type=str, help="path to selenium test")
 args = parser.parse_args()
 path = args.path
-timeout = abs(args.timeout)
+timeout = args.timeout
 os.chdir(path)
 
 # Find side file and parse it to get the project name
@@ -67,7 +67,8 @@ file.close()
 container.stop()
 
 # Calculate execution time
-exec_time = int(str(json_input['testResults'][0]['endTime'])[:-3]) - int(str(json_input['startTime'])[:-3])
+exec_time = 0 if len(json_input['testResults']) == 0 else \
+    int(str(json_input['testResults'][0]['endTime'])[:-3]) - int(str(json_input['startTime'])[:-3])
 
 # Exit logic with performance data
 if json_input['numFailedTests'] == 0:
