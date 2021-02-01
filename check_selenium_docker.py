@@ -41,7 +41,6 @@ for side in glob.glob(path + '/sides/*.side'):
     projects.append(side_json['name'])
 projectsNb = len(projects)
 
-
 # Remove old result json files
 for result in glob.glob(path + '/out/*.json'):
     os.remove(result)
@@ -91,7 +90,7 @@ for result in glob.glob(path + '/out/*.json'):
                 failed[aResult['fullName']] = '\n\n'.join(aResult['failureMessages'])
 
 # Calculate execution time
-exec_time = 0 if times['endTime'] < times['startTime'] else \
+exec_time = 0 if times['endTime'] <= times['startTime'] else \
     int(str(times['endTime'] - times['startTime'])[:-3])
 
 # Exit logic with performance data
