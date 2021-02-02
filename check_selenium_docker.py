@@ -23,21 +23,29 @@ import glob
 # Parse commandline arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--timeout", type=int, default=300, help="results waiting timeout in sec, default 300")
+parser.add_argument('--verbose', '-v', action='count', default=0,
+    help="show failed test names and failure messages (-vv)")
 parser.add_argument("path", type=str, help="path to selenium test")
 args = parser.parse_args()
 path = args.path
 timeout = abs(args.timeout)
+verbose = args.verbose
 os.chdir(path)
 
-# Find side file and parse it to get the project name
-side = glob.glob(path + '/sides/*.side')
-side_file = open(side[0],'r')
-side_json = json.loads(side_file.read())
-side_file.close()
-result = path + '/out/' + side_json['name'] + '.json'
+# Count projects for results observe
+projects = []
+for side in glob.glob(path + '/sides/*.side'):
+    side_file = open(side,'r')
+    side_json = json.loads(side_file.read())
+    side_file.close()
+    if side_json['name'] in projects:
+        print("Error: duplicated project names! Check input side files.")
+        sys.exit(3)
+    projects.append(side_json['name'])
+projectsNb = len(projects)
 
-# Remove old result json file if it exists
-if os.path.isfile(result):
+# Remove old result json files
+for result in glob.glob(path + '/out/*.json'):
     os.remove(result)
 
 # Start selenium docker container
@@ -48,27 +56,40 @@ container = client.containers.run("opsdis/selenium-chrome-node-with-side-runner"
 
 # Wait for result file to be written
 waitedfor = 0
-while not os.path.isfile(result) and waitedfor <= timeout:
+while len(glob.glob(path + '/out/*.json')) < projectsNb and waitedfor <= timeout:
     time.sleep(1)
     waitedfor += 1
-
-# If no result was received after timeout exit with status unknown
-if waitedfor >= timeout:
-    container.stop()
-    print("UNKNOWN: Test timed out. Investigate issues.")
-    sys.exit(3)
-
-# Open and read result file
-file = open(result,'r')
-json_input = json.loads(file.read())
-file.close()
 
 # Stop and remove container
 container.stop()
 
+# If no result was received after timeout exit with status unknown
+if waitedfor >= timeout:
+    print("UNKNOWN: Test timed out. Investigate issues.")
+    sys.exit(3)
+
+# Parse result files
+times = { 'startTime': 0, 'endTime': 0 }
+json_input = { 'numPassedTests': 0, 'numFailedTests': 0, 'numTotalTests': 0 }
+failed = {}
+for result in glob.glob(path + '/out/*.json'):
+    file = open(result,'r')
+    jsonResult = json.loads(file.read())
+    file.close()
+    if times['startTime'] == 0 or times['startTime'] > jsonResult['startTime']:
+        times['startTime'] = jsonResult['startTime']
+    for par in json_input.keys():
+        json_input[par] += jsonResult[par]
+    for testResult in jsonResult['testResults']:
+        if times['endTime'] < testResult['endTime']:
+            times['endTime'] = testResult['endTime']
+        for aResult in testResult['assertionResults']:
+            if aResult['status'] == 'failed':
+                failed[aResult['fullName']] = aResult['failureMessages']
+
 # Calculate execution time
-exec_time = 0 if len(json_input['testResults']) == 0 else \
-    int(str(json_input['testResults'][0]['endTime'])[:-3]) - int(str(json_input['startTime'])[:-3])
+exec_time = 0 if times['endTime'] <= times['startTime'] else \
+    int(str(times['endTime'] - times['startTime'])[:-3])
 
 # Exit logic with performance data
 if json_input['numFailedTests'] == 0:
@@ -79,9 +100,12 @@ if json_input['numFailedTests'] == 0:
 
 elif json_input['numFailedTests'] > 0:
     print("CRITICAL: Failed " +str(json_input['numFailedTests']) + " of " + str(json_input['numTotalTests']) +
-          " tests. Error message: " + str(json_input['testResults'][0]['message']) +
+          " tests" + ('.' if verbose == 0 else ": " +  ', '.join(failed.keys()) + '.' ) +
           " | 'passed'=" + str(json_input['numPassedTests']) + ";;;; 'failed'=" + str(json_input['numFailedTests']) +
           ";;;; " + "'exec_time'=" + str(exec_time) + "s;;;;")
+    if verbose > 1:
+        for testName in failed:
+            print('TEST: ' + testName + '\n\n' + '\n\n'.join(failed[testName]))
     sys.exit(2)
 
 else:
