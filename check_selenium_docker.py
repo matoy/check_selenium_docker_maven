@@ -24,7 +24,7 @@ import glob
 parser = argparse.ArgumentParser()
 parser.add_argument("--timeout", type=int, default=300, help="results waiting timeout in sec, default 300")
 parser.add_argument('--verbose', '-v', action='count', default=0,
-    help="show failed test names and failure messages (-vv)")
+    help="show failed tests names and failure messages (-vv)")
 parser.add_argument("path", type=str, help="path to selenium test")
 args = parser.parse_args()
 path = args.path
