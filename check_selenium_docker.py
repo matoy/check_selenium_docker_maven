@@ -66,11 +66,8 @@ if waitedfor >= timeout:
     sys.exit(3)
 
 # Parse result files
-times = {
-    'startTime': 0,
-    'endTime': 0,
-}
-json_input = {} 
+times = { 'startTime': 0, 'endTime': 0 }
+json_input = { 'numPassedTests': 0, 'numFailedTests': 0, 'numTotalTests': 0 }
 failed = {}
 for result in glob.glob(path + '/out/*.json'):
     file = open(result,'r')
@@ -78,12 +75,10 @@ for result in glob.glob(path + '/out/*.json'):
     file.close()
     if times['startTime'] == 0 or times['startTime'] > jsonResult['startTime']:
         times['startTime'] = jsonResult['startTime']
-    for par in jsonResult:
-        if par.startswith('num'):
-            json_input[par] = jsonResult[par] if par not in json_input else \
-                json_input[par] + jsonResult[par]
+    for par in json_input.keys():
+        json_input[par] += jsonResult[par]
     for testResult in jsonResult['testResults']:
-        if 'endTime' in testResult and times['endTime'] < testResult['endTime']:
+        if times['endTime'] < testResult['endTime']:
             times['endTime'] = testResult['endTime']
         for aResult in testResult['assertionResults']:
             if aResult['status'] == 'failed':
@@ -96,14 +91,13 @@ exec_time = 0 if times['endTime'] <= times['startTime'] else \
 # Exit logic with performance data
 if json_input['numFailedTests'] == 0:
     print("OK: Passed " + str(json_input['numPassedTests']) + " of " + str(json_input['numTotalTests']) +
-          " tests in " + str(json_input['numTotalTestSuites']) + " suites. | 'passed'=" + 
-          str(json_input['numPassedTests']) + ";;;; 'failed'=" + str(json_input['numFailedTests']) + 
-          ";;;; " + "'exec_time'=" + str(exec_time) + "s;;;;")
+          " tests. | 'passed'=" + str(json_input['numPassedTests']) + ";;;; 'failed'=" +
+          str(json_input['numFailedTests']) + ";;;; " + "'exec_time'=" + str(exec_time) + "s;;;;")
     sys.exit(0)
 
 elif json_input['numFailedTests'] > 0:
     print("CRITICAL: Failed " +str(json_input['numFailedTests']) + " of " + str(json_input['numTotalTests']) +
-          " tests in " + str(json_input['numTotalTestSuites']) + " suites. Failed tests: " +  ', '.join(failed.keys()) + 
+          " tests: " +  ', '.join(failed.keys()) +
           " | 'passed'=" + str(json_input['numPassedTests']) + ";;;; 'failed'=" + str(json_input['numFailedTests']) +
           ";;;; " + "'exec_time'=" + str(exec_time) + "s;;;;")
     sys.exit(2)
