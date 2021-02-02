@@ -23,10 +23,13 @@ import glob
 # Parse commandline arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--timeout", type=int, default=300, help="results waiting timeout in sec, default 300")
+parser.add_argument('--verbose', '-v', action='count', default=0,
+    help="show failed test names and failure messages (-vv)")
 parser.add_argument("path", type=str, help="path to selenium test")
 args = parser.parse_args()
 path = args.path
 timeout = abs(args.timeout)
+verbose = args.verbose
 os.chdir(path)
 
 # Count projects for results observe
@@ -82,7 +85,7 @@ for result in glob.glob(path + '/out/*.json'):
             times['endTime'] = testResult['endTime']
         for aResult in testResult['assertionResults']:
             if aResult['status'] == 'failed':
-                failed[aResult['fullName']] = '\n\n'.join(aResult['failureMessages'])
+                failed[aResult['fullName']] = aResult['failureMessages']
 
 # Calculate execution time
 exec_time = 0 if times['endTime'] <= times['startTime'] else \
@@ -97,9 +100,12 @@ if json_input['numFailedTests'] == 0:
 
 elif json_input['numFailedTests'] > 0:
     print("CRITICAL: Failed " +str(json_input['numFailedTests']) + " of " + str(json_input['numTotalTests']) +
-          " tests: " +  ', '.join(failed.keys()) + '.' +
+          " tests" + ('.' if verbose == 0 else ": " +  ', '.join(failed.keys()) + '.' ) +
           " | 'passed'=" + str(json_input['numPassedTests']) + ";;;; 'failed'=" + str(json_input['numFailedTests']) +
           ";;;; " + "'exec_time'=" + str(exec_time) + "s;;;;")
+    if verbose > 1:
+        for testName in failed:
+            print('TEST: ' + testName + '\n\n' + '\n\n'.join(failed[testName]))
     sys.exit(2)
 
 else:
