@@ -97,7 +97,7 @@ if json_input['numFailedTests'] == 0:
 
 elif json_input['numFailedTests'] > 0:
     print("CRITICAL: Failed " +str(json_input['numFailedTests']) + " of " + str(json_input['numTotalTests']) +
-          " tests: " +  ', '.join(failed.keys()) +
+          " tests: " +  ', '.join(failed.keys()) + '.' +
           " | 'passed'=" + str(json_input['numPassedTests']) + ";;;; 'failed'=" + str(json_input['numFailedTests']) +
           ";;;; " + "'exec_time'=" + str(exec_time) + "s;;;;")
     sys.exit(2)
