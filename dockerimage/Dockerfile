@@ -22,7 +22,7 @@ WORKDIR /selenium-side-runner
 
 # Five seconds after starting container (as deamon) selenium-side-runner will run every /sides/*.side file
 RUN sed -i "/^\/usr\/bin\/supervisord.*/a \
-OPTS=('--server http://localhost:4444/wd/hub' '--output-directory /selenium-side-runner/out')\n\
+OPTS=('-c browserName=chrome --server http://localhost:4444/wd/hub' '--output-directory /selenium-side-runner/out')\n\
 [[ -s /sides/.options ]] && readarray -t -O 2 OPTS < /sides/.options\n\
 [[ -s /sides/.side.yml ]] && OPTS+=('--config /sides/.side.yml')\n\
 sleep 5 && selenium-side-runner \${OPTS[@]} /sides/*.side &> /selenium-side-runner/out/output.log" \
