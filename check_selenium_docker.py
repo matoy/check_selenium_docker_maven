@@ -25,12 +25,17 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', action='count', default=0,
     help="show failed test names and failure messages (-vv)")
 parser.add_argument("--timeout", type=int, default=300, help="results waiting timeout in sec, default 300")
+parser.add_argument("--browser", type=str, default="chrome", help="container version to use, default 'chrome'")
 parser.add_argument("path", type=str, help="path to selenium test")
 args = parser.parse_args()
 path = args.path
+browser = args.browser
 timeout = abs(args.timeout)
 verbose = args.verbose
 os.chdir(path)
+if browser not in ['chrome', 'firefox', 'opera']:
+    print("Error: not allowed browser!")
+    sys.exit(3)
 
 # Count projects for results observe
 projects = []
@@ -43,6 +48,9 @@ for side in glob.glob(path + '/sides/*.side'):
         sys.exit(3)
     projects.append(side_json['name'])
 projectsNb = len(projects)
+if projectsNb == 0:
+    print("Error: no valid input side files found!")
+    sys.exit(3)
 
 # Remove old result json files
 for result in glob.glob(path + '/out/*.json'):
@@ -50,7 +58,8 @@ for result in glob.glob(path + '/out/*.json'):
 
 # Start selenium docker container
 client = docker.from_env()
-container = client.containers.run("opsdis/selenium-chrome-node-with-side-runner", auto_remove=True, shm_size="2G",
+container = client.containers.run("opsdis/selenium-" + browser + "-node-with-side-runner",
+                                  auto_remove=True, shm_size="2G",
                                   volumes={ path + '/out': {'bind': '/selenium-side-runner/out', 'mode': 'rw'},
                                             path + '/sides': {'bind': '/sides', 'mode': 'rw'}}, detach=True)
 
