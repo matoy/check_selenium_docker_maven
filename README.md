@@ -83,6 +83,11 @@ cd check_selenium_docker/dockerimage/
 docker build . --tag opsdis/selenium-chrome-node-with-side-runner
 ```
 
+Image for an alternative supported browser:
+
+```
+sed 's/chrome/firefox/' Dockerfile | docker build --tag opsdis/selenium-firefox-node-with-side-runner -
+```
 
 # Plugin #
 
