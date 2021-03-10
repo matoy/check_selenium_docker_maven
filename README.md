@@ -161,8 +161,7 @@ The directory structure should look like this:
 
 ```
 /opt/plugins/custom/check_selenium_docker.py /opt/plugins/custom/selenium/opsdis.com
-OK: Passed 1 of 1 tests. | 'passed'=1;;;; 'failed'=0;;;; 'exec_time'=6s;;;;
-
+OK: Passed 2 of 2 tests. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;;
 ```
 
 # License 
