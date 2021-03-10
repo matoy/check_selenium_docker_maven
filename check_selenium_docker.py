@@ -100,18 +100,22 @@ for result in glob.glob(path + '/out/*.json'):
 exec_time = 0 if times['endTime'] <= times['startTime'] else \
     int(str(times['endTime'] - times['startTime'])[:-3])
 
+# Performace Data
+def getPerfData():
+    return "'passed'={1};;{0}:;0;{0} 'failed'={2};;~:0;0;{0} 'exec_time'={3}s;;;;".format(
+        json_input['numTotalTests'], json_input['numPassedTests'], json_input['numFailedTests'], exec_time
+    )
+
 # Exit logic with performance data
 if json_input['numFailedTests'] == 0:
     print("OK: Passed " + str(json_input['numPassedTests']) + " of " + str(json_input['numTotalTests']) +
-          " tests. | 'passed'=" + str(json_input['numPassedTests']) + ";;;; 'failed'=" +
-          str(json_input['numFailedTests']) + ";;;; " + "'exec_time'=" + str(exec_time) + "s;;;;")
+          " tests. | " + getPerfData())
     sys.exit(0)
 
 elif json_input['numFailedTests'] > 0:
     print("CRITICAL: Failed " +str(json_input['numFailedTests']) + " of " + str(json_input['numTotalTests']) +
           " tests" + ('.' if verbose == 0 else ": " +  ', '.join(failed.keys()) + '.' ) +
-          " | 'passed'=" + str(json_input['numPassedTests']) + ";;;; 'failed'=" + str(json_input['numFailedTests']) +
-          ";;;; " + "'exec_time'=" + str(exec_time) + "s;;;;")
+          " | " + getPerfData())
     if verbose > 1:
         for testName in failed:
             print('TEST: ' + testName + '\n\n' + '\n\n'.join(failed[testName]))
