@@ -26,6 +26,7 @@ parser.add_argument('-v', '--verbose', action='count', default=0,
     help="show failed test names and failure messages (-vv)")
 parser.add_argument("--timeout", type=int, default=300, help="results waiting timeout in sec, default 300")
 parser.add_argument("--browser", type=str, default="chrome", help="container version to use, default 'chrome'")
+parser.add_argument('--no-newlines', action='store_true', help="print newlines literally on multiline output")
 parser.add_argument("path", type=str, help="path to selenium test")
 args = parser.parse_args()
 path = args.path
@@ -113,12 +114,14 @@ if json_input['numFailedTests'] == 0:
     sys.exit(0)
 
 elif json_input['numFailedTests'] > 0:
-    print("CRITICAL: Failed " +str(json_input['numFailedTests']) + " of " + str(json_input['numTotalTests']) +
+    print("CRITICAL: Failed " + str(json_input['numFailedTests']) + " of " + str(json_input['numTotalTests']) +
           " tests" + ('.' if verbose == 0 else ": " +  ', '.join(failed.keys()) + '.' ) +
-          " | " + getPerfData())
+          " | " + getPerfData(), end = '')
     if verbose > 1:
         for testName in failed:
-            print('TEST: ' + testName + '\n\n' + '\n\n'.join(failed[testName]))
+            output = '\nTEST: ' + testName + '\n' + '\n\n'.join(failed[testName])
+            print(output.replace('\n', '\\n') if args.no_newlines else output, end = '')
+    print('')
     sys.exit(2)
 
 else:

@@ -1,13 +1,22 @@
 # CHANGELOG
 
+## [2.1.0] - 2021-07-02
+
+### Added
+- `no-newlines` option that prints newlines literally on multiline output,
+   usefull for passive check
+   [Passive Check](https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/passivechecks.html)
+- failed and passed perfdata thresholds for consistency with result status
+
 ## [2.0.0] - 2021-02-16
 
 ### Added
 - configurable timeout option
 - support for container with alternative browser
-- verbose option for more [Nagios Guidelines](https://nagios-plugins.org/doc/guidelines.html#PLUGOUTPUT) compliant error output
+- verbose option for more [Nagios Guidelines](https://nagios-plugins.org/doc/guidelines.html#PLUGOUTPUT)
+  compliant error output
 
-### Changed 
+### Changed
 - calculate exec_time based on execution all tests in all suites from all side files
 - aggregated passed, failed, and total counters for all tests
 
