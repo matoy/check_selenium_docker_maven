@@ -103,28 +103,68 @@ exec_time = 0 if times['endTime'] <= times['startTime'] else \
     int(str(times['endTime'] - times['startTime'])[:-3])
 
 # Performace Data
-def getPerfData():
-    perfData ="'passed'={1};;{0}:;0;{0} 'failed'={2};;~:0;0;{0} 'exec_time'={3}s;;;;".format(
-        json_input['numTotalTests'], json_input['numPassedTests'], json_input['numFailedTests'], exec_time
-    )
-    # Perf data from console output
-    if os.path.isfile(path + '/out/output.log'):
-        file = open(path + '/out/output.log','r')
-        for perf in re.findall("PERFDATA: '?([^=']+[^' ])'? *= *([-0-9].*)", file.read()):
-            perfData += " '{}'={}".format(*perf)
-        file.close()
-    return perfData
+perfData ="'passed'={1};;{0}:;0;{0} 'failed'={2};;~:0;0;{0} 'exec_time'={3}s;;;;".format(
+    json_input['numTotalTests'], json_input['numPassedTests'], json_input['numFailedTests'], exec_time
+)
+# Perf data from console output
+# @see https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT
+def outOfRange(val, thre):
+    val = float(val)
+    if ':' not in thre:
+        return val < 0 or val > float(thre)
+    thre = thre.split(':')
+    if thre[0] == '~':
+        return val > float(thre[1])
+    if thre[1] == '':
+        return val < float(thre[0])
+    if '@' in thre[0]:
+        return val >= float(thre[0].replace('@', '')) and val <= float(thre[1])
+    return val < float(thre[0]) or val > float(thre[1])
+
+statusCode = 0
+exitStatus = ['OK', 'WARNING', 'CRITICAL']
+# [warn, crit]
+alerts = [[], []]
+if os.path.isfile(path + '/out/output.log'):
+    perfDataReg = "PERFDATA: '?([^=']+[^' ])'? *= *((-?[0-9]+(\.[0-9]+)?|U)[^\d';]*(;.*)*)$"
+    # [threshold, min/max]
+    validators = [ 
+        re.compile('^(~|@?[0-9]+(\.[0-9]+)?)(:|:[0-9]+(\.[0-9]+)?)?$'),
+        re.compile('^[0-9]+(\.[0-9]+)?$'),
+    ]
+    file = open(path + '/out/output.log','r')
+    for perf in re.findall(perfDataReg, file.read(), flags=re.MULTILINE):
+        perfVals = perf[1].split(';')
+        perfValid = True
+        # validate thresholds and min/max fields
+        for id in range(1,5):
+            if len(perfVals) > id and perfVals[id] != '' \
+                    and not validators[0 if id < 3 else 1].match(perfVals[id]):
+               perfValid = False
+        if len(perfVals) > 5 or not perfValid:
+            continue
+        # compare value with crit and warn thresholds
+        for id in [2, 1]:
+            if perf[2] != 'U' and len(perfVals) > id and perfVals[id] != '' \
+                    and outOfRange(perf[2], perfVals[id]):
+                if statusCode < id:
+                    statusCode = id
+                # do not put warn alert if crit exits
+                if id != 1 or perf[0] not in alerts[1]:
+                    alerts[id-1].append(perf[0])
+        perfData += " '{}'={}".format(*perf)
+    file.close()
 
 # Exit logic with performance data
 if json_input['numFailedTests'] == 0:
-    print("OK: Passed " + str(json_input['numPassedTests']) + " of " + str(json_input['numTotalTests']) +
-          " tests. | " + getPerfData())
-    sys.exit(0)
+    print(exitStatus[statusCode] + ": Passed " + str(json_input['numPassedTests']) + " of " + str(json_input['numTotalTests']) +
+          " tests. | " + perfData)
+    sys.exit(statusCode)
 
 elif json_input['numFailedTests'] > 0:
     print("CRITICAL: Failed " + str(json_input['numFailedTests']) + " of " + str(json_input['numTotalTests']) +
           " tests" + ('.' if verbose == 0 else ": " +  ', '.join(failed.keys()) + '.' ) +
-          " | " + getPerfData(), end = '')
+          " | " + perfData, end = '')
     if verbose > 1:
         for testName in failed:
             output = '\nTEST: ' + testName + '\n' + '\n\n'.join(failed[testName])
