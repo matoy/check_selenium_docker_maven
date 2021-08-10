@@ -1,10 +1,19 @@
 # CHANGELOG
 
+## [2.2.0] - 2021-08-10
+
+### Added
+
+- parse runner console output (SeleniumIDE `echo` command) for additional perfdata
+  marked with `PERFDATA: ` prefix and guidelines compliant for
+  [Performance data](https://nagios-plugins.org/doc/guidelines.html#AEN200),
+  i.e., `PERFDATA: First Response Time = ${calculatedTime}s;${warningThreshold}`
+
 ## [2.1.0] - 2021-07-02
 
 ### Added
 - `no-newlines` option that prints newlines literally on multiline output,
-   usefull for passive check
+   useful for passive check
    [Passive Check](https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/passivechecks.html)
 - failed and passed perfdata thresholds for consistency with result status
 
