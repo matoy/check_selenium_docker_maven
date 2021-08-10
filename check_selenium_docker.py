@@ -19,6 +19,7 @@ import os, sys, time
 import json
 import argparse
 import glob
+import re
 
 # Parse commandline arguments
 parser = argparse.ArgumentParser()
@@ -103,9 +104,16 @@ exec_time = 0 if times['endTime'] <= times['startTime'] else \
 
 # Performace Data
 def getPerfData():
-    return "'passed'={1};;{0}:;0;{0} 'failed'={2};;~:0;0;{0} 'exec_time'={3}s;;;;".format(
+    perfData ="'passed'={1};;{0}:;0;{0} 'failed'={2};;~:0;0;{0} 'exec_time'={3}s;;;;".format(
         json_input['numTotalTests'], json_input['numPassedTests'], json_input['numFailedTests'], exec_time
     )
+    # Perf data from console output
+    if os.path.isfile(path + '/out/output.log'):
+        file = open(path + '/out/output.log','r')
+        for perf in re.findall("PERFDATA: '?([^=']+[^' ])'? *= *([-0-9].*)", file.read()):
+            perfData += " '{}'={}".format(*perf)
+        file.close()
+    return perfData
 
 # Exit logic with performance data
 if json_input['numFailedTests'] == 0:
