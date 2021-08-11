@@ -134,7 +134,7 @@ exitStatus = ['OK', 'WARNING', 'CRITICAL']
 # [warn, crit]
 alerts = [[], []]
 if os.path.isfile(path + '/out/output.log'):
-    perfDataReg = "PERFDATA: '?([^=']+[^' ])'? *= *((-?[0-9]+(\.[0-9]+)?|U)[^\d';]*(;.*)*)$"
+    perfDataReg = "PERFDATA: '?([^=']+[^' ])'? *= *((-?[0-9]+(\.[0-9]+)?|U)[^\d';]*(;.*)*)\n$"
     # [threshold, min/max]
     validators = [
         re.compile('^(~|@?[0-9]+(\.[0-9]+)?)(:|:[0-9]+(\.[0-9]+)?)?$'),
