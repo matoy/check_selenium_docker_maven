@@ -128,7 +128,7 @@ alerts = [[], []]
 if os.path.isfile(path + '/out/output.log'):
     perfDataReg = "PERFDATA: '?([^=']+[^' ])'? *= *((-?[0-9]+(\.[0-9]+)?|U)[^\d';]*(;.*)*)$"
     # [threshold, min/max]
-    validators = [ 
+    validators = [
         re.compile('^(~|@?[0-9]+(\.[0-9]+)?)(:|:[0-9]+(\.[0-9]+)?)?$'),
         re.compile('^[0-9]+(\.[0-9]+)?$'),
     ]
@@ -151,20 +151,35 @@ if os.path.isfile(path + '/out/output.log'):
                     statusCode = id
                 # do not put warn alert if crit exits
                 if id != 1 or perf[0] not in alerts[1]:
-                    alerts[id-1].append(perf[0])
+                    alerts[id - 1].append(perf[0])
         perfData += " '{}'={}".format(*perf)
     file.close()
 
+def getAlertsInfo():
+    alertsInfo = [
+        '{} critical and {} warning alerts.'.format(*map(len, reversed(alerts)))
+    ]
+    if verbose > 0:
+        for idx, val in enumerate(alerts):
+            if len(val) > 0:
+                alertsInfo.append('{}: {}.'.format(exitStatus[idx + 1].title(),
+                    ', '.join(val)))
+    return ' '.join(alertsInfo)
+
 # Exit logic with performance data
 if json_input['numFailedTests'] == 0:
-    print(exitStatus[statusCode] + ": Passed " + str(json_input['numPassedTests']) + " of " + str(json_input['numTotalTests']) +
-          " tests. | " + perfData)
+    print('{}: Passed {} of {} tests'.format(exitStatus[statusCode],
+            json_input['numPassedTests'], json_input['numTotalTests']) +
+       ('.' if statusCode == 0 else ' with ' + getAlertsInfo()) +
+       " | " + perfData)
     sys.exit(statusCode)
 
 elif json_input['numFailedTests'] > 0:
-    print("CRITICAL: Failed " + str(json_input['numFailedTests']) + " of " + str(json_input['numTotalTests']) +
-          " tests" + ('.' if verbose == 0 else ": " +  ', '.join(failed.keys()) + '.' ) +
-          " | " + perfData, end = '')
+    print('CRITICAL: Failed {} of {} tests'.format(json_input['numFailedTests'],
+            json_input['numTotalTests']) +
+      ('.' if verbose == 0 else ": " +  ', '.join(failed.keys()) + '.' ) +
+      ('' if not sum(map(len, alerts)) else ' ' + getAlertsInfo()) +
+      " | " + perfData, end = '')
     if verbose > 1:
         for testName in failed:
             output = '\nTEST: ' + testName + '\n' + '\n\n'.join(failed[testName])
