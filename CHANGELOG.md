@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## [2.2.0] - 2021-08-10
+## [2.2.0] - 2021-08-11
 
 ### Added
 
@@ -8,6 +8,8 @@
   marked with `PERFDATA: ` prefix and guidelines compliant for
   [Performance data](https://nagios-plugins.org/doc/guidelines.html#AEN200),
   i.e., `PERFDATA: First Response Time = ${calculatedTime}s;${warningThreshold}`
+- catch-all for exceptions exit codes, as by the guidelines
+  [Plugin Return Codes](https://nagios-plugins.org/doc/guidelines.html#AEN78)
 
 ## [2.1.0] - 2021-07-02
 
