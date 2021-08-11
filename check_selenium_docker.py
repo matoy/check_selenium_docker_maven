@@ -15,11 +15,19 @@
 """
 
 import docker
-import os, sys, time
+import os, sys, time, traceback
 import json
 import argparse
 import glob
 import re
+
+# catch-all for exceptions exit codes
+# @see https://nagios-plugins.org/doc/guidelines.html#AEN78
+def except_hook(exctype, exc, tb):
+    print('{}: {}'.format(type(exc).__name__, exc))
+    traceback.print_exception(exctype, exc, tb)
+    sys.exit(3)
+sys.excepthook = except_hook
 
 # Parse commandline arguments
 parser = argparse.ArgumentParser()
