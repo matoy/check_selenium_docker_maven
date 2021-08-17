@@ -172,7 +172,7 @@ Console output (Selenium IDE `echo` command) is parsed for additional custom
 metrics marked with  `PERFDATA: ` prefix and guidelines compliant expression
 for [Performance data](https://nagios-plugins.org/doc/guidelines.html#AEN200),
 i.e., `PERFDATA: First Response Time = ${calculatedTime}s;120` could give for 
-`calculatedTime = 50` (as a results of `exec script` SIDE command):
+`calculatedTime = 150` (as a results of `exec script` SIDE command):
 
 ```
 /opt/plugins/custom/check_selenium_docker.py -vv /opt/plugins/custom/selenium/opsdis.com
