@@ -15,7 +15,7 @@
 """
 
 import docker
-import os, sys, time, traceback
+import os, sys, time, traceback, signal
 import json
 import argparse
 import glob
@@ -65,6 +65,15 @@ if projectsNb == 0:
 # Remove old result json files
 for result in glob.glob(path + '/out/*.json'):
     os.remove(result)
+
+# Signal trap for container cleaning.
+def handler(signum, frame):
+    if 'container' in globals():
+        container.stop()
+    print("Error: execute interrupted!")
+    sys.exit(3)
+for sig in [signal.SIGTERM, signal.SIGINT]:
+    signal.signal(sig, handler)
 
 # Start selenium docker container
 client = docker.from_env()

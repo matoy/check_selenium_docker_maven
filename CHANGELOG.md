@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [2.2.1] - 2021-08-17
+
+### Added
+
+- doc update: README _Performance metrics_ section
+
+### Fix
+
+- container stop (autoremove) on interrupt (SIGINT/ SIGTERM)
+
 ## [2.2.0] - 2021-08-11
 
 ### Added

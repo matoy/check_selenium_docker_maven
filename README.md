@@ -10,6 +10,7 @@ check_selenium_docker
 - [Plugin](#plugin)
 - [Add new test scenarios](#add-new-test-scenarios)
 - [Execute the plugin](#execute-the-plugin)
+- [Performance metrics](#performance-metrics)
 - [License](#license)
 
 # Overview #
@@ -22,6 +23,7 @@ check_selenium_docker is a Nagios based plugin that spins up a Docker container,
 * Works with any Nagios compatible system such as ITRS OP5 Monitor, Icinga2 or Nagios.
 * Every test is executed in a fresh environment. (https://www.selenium.dev/documentation/en/guidelines_and_recommendations/fresh_browser_per_test/)
 * Will remove the Docker container as soon as the test is complete. Requires no manual cleanup of stopped containers.
+* Any custom performance metrics is allowed.
 
 # Workflow #
 
@@ -162,6 +164,19 @@ The directory structure should look like this:
 ```
 /opt/plugins/custom/check_selenium_docker.py /opt/plugins/custom/selenium/opsdis.com
 OK: Passed 2 of 2 tests. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;;
+```
+
+# Performance metrics #
+
+Console output (Selenium IDE `echo` command) is parsed for additional custom
+metrics marked with  `PERFDATA: ` prefix and guidelines compliant expression
+for [Performance data](https://nagios-plugins.org/doc/guidelines.html#AEN200),
+i.e., `PERFDATA: First Response Time = ${calculatedTime}s;120` could give for 
+`calculatedTime = 50` (as a results of `exec script` SIDE command):
+
+```
+/opt/plugins/custom/check_selenium_docker.py -vv /opt/plugins/custom/selenium/opsdis.com
+WARNING: Passed 2 of 2 tests with 0 critical and 1 warning alerts. Warning: First Response Time. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;; 'First Response Time'=150s;120
 ```
 
 # License 
