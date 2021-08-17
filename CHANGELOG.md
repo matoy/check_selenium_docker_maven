@@ -6,7 +6,7 @@
 
 - doc update: README _Performance metrics_ section
 
-### Fix
+### Fixed
 
 - container stop (autoremove) on interrupt (SIGINT/ SIGTERM)
 
