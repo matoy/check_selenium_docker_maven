@@ -98,7 +98,9 @@ if waitedfor >= timeout:
 
 # Parse result files
 times = { 'startTime': 0, 'endTime': 0 }
-json_input = { 'numPassedTests': 0, 'numFailedTests': 0, 'numTotalTests': 0 }
+json_input = { 'num' + i : 0 for i in
+    [ 'FailedTestSuites', 'PassedTests', 'FailedTests', 'TotalTests']
+}
 failed = {}
 for result in glob.glob(path + '/out/*.json'):
     file = open(result,'r')
@@ -184,7 +186,7 @@ def getAlertsInfo():
     return ' '.join(alertsInfo)
 
 # Exit logic with performance data
-if json_input['numFailedTests'] == 0:
+if json_input['numFailedTests'] == 0 and json_input['numFailedTestSuites'] == 0:
     print('{}: Passed {} of {} tests'.format(exitStatus[statusCode],
             json_input['numPassedTests'], json_input['numTotalTests']) +
        ('.' if statusCode == 0 else ' with ' + getAlertsInfo()) +
