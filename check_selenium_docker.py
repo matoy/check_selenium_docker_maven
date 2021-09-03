@@ -117,7 +117,7 @@ for result in glob.glob(path + '/out/*.json'):
 
 # Calculate execution time
 exec_time = 0 if times['endTime'] <= times['startTime'] else \
-    int(str(times['endTime'] - times['startTime'])[:-3])
+    int(round(float(times['endTime'] - times['startTime'])/1000))
 
 # Performace Data
 perfData ="'passed'={1};;{0}:;0;{0} 'failed'={2};;~:0;0;{0} 'exec_time'={3}s;;;;".format(
