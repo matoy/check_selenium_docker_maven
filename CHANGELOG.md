@@ -6,7 +6,8 @@
 
 - "invalid literal for int()" error in exec_time calc,
   i.e., case of early fail caused by network issues
-- UNKNOWN status for failed suites with zero failed, case as above
+- UNKNOWN status for failed suites with no reported failed tests,
+  case as above
 - codding style, wrap long lines
 
 ## [2.2.1] - 2021-08-17
