@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## [2.2.2] - 2021-09-03
+
+### Fixed
+
+- "invalid literal for int()" error in exec_time calc,
+  i.e., case of early fail caused by network issues
+- UNKNOWN status for failed suites with zero failed, case as above
+- codding style, wrap long lines
+
 ## [2.2.1] - 2021-08-17
 
 ### Added
