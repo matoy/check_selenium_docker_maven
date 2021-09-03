@@ -32,10 +32,13 @@ sys.excepthook = except_hook
 # Parse commandline arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-v', '--verbose', action='count', default=0,
-    help="show failed test names and failure messages (-vv)")
-parser.add_argument("--timeout", type=int, default=300, help="results waiting timeout in sec, default 300")
-parser.add_argument("--browser", type=str, default="chrome", help="container version to use, default 'chrome'")
-parser.add_argument('--no-newlines', action='store_true', help="print newlines literally on multiline output")
+                    help="show failed test names and failure messages (-vv)")
+parser.add_argument("--timeout", type=int, default=300,
+                    help="results waiting timeout in sec, default 300")
+parser.add_argument("--browser", type=str, default="chrome",
+                    help="container version to use, default 'chrome'")
+parser.add_argument('--no-newlines', action='store_true',
+                    help="print newlines literally on multiline output")
 parser.add_argument("path", type=str, help="path to selenium test")
 args = parser.parse_args()
 path = args.path
@@ -77,10 +80,16 @@ for sig in [signal.SIGTERM, signal.SIGINT]:
 
 # Start selenium docker container
 client = docker.from_env()
-container = client.containers.run("opsdis/selenium-" + browser + "-node-with-side-runner",
-                                  auto_remove=True, shm_size="2G",
-                                  volumes={ path + '/out': {'bind': '/selenium-side-runner/out', 'mode': 'rw'},
-                                            path + '/sides': {'bind': '/sides', 'mode': 'rw'}}, detach=True)
+container = client.containers.run(
+    'opsdis/selenium-' + browser + '-node-with-side-runner',
+    auto_remove = True,
+    shm_size = '2G',
+    volumes = {
+        path + '/out': { 'bind': '/selenium-side-runner/out', 'mode': 'rw' },
+        path + '/sides': { 'bind': '/sides', 'mode': 'rw' },
+    },
+    detach = True
+)
 
 # Wait for result file to be written
 waitedfor = 0
@@ -98,7 +107,7 @@ if waitedfor >= timeout:
 
 # Parse result files
 times = { 'startTime': 0, 'endTime': 0 }
-json_input = { 'num' + i : 0 for i in
+json_input = { 'num' + i: 0 for i in
     [ 'FailedTestSuites', 'PassedTests', 'FailedTests', 'TotalTests']
 }
 failed = {}
@@ -122,9 +131,9 @@ exec_time = 0 if times['endTime'] <= times['startTime'] else \
     int(round(float(times['endTime'] - times['startTime'])/1000))
 
 # Performace Data
-perfData ="'passed'={1};;{0}:;0;{0} 'failed'={2};;~:0;0;{0} 'exec_time'={3}s;;;;".format(
-    json_input['numTotalTests'], json_input['numPassedTests'], json_input['numFailedTests'], exec_time
-)
+perfData = ("'passed'={1};;{0}:;0;{0} 'failed'={2};;~:0;0;{0} 'exec_time'={3}s"
+    ';;;;').format(json_input['numTotalTests'], json_input['numPassedTests'],
+                   json_input['numFailedTests'], exec_time)
 # Perf data from console output
 # @see https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT
 def outOfRange(val, thre):
@@ -145,7 +154,8 @@ exitStatus = ['OK', 'WARNING', 'CRITICAL']
 # [warn, crit]
 alerts = [[], []]
 if os.path.isfile(path + '/out/output.log'):
-    perfDataReg = "PERFDATA: '?([^=']+[^' ])'? *= *((-?[0-9]+(\.[0-9]+)?|U)[^\d';]*(;.*)*)\n$"
+    perfDataReg = ("PERFDATA: '?([^=']+[^' ])'? *= *"
+                   "((-?[0-9]+(\.[0-9]+)?|U)[^\d';]*(;.*)*)\n$")
     # [threshold, min/max]
     validators = [
         re.compile('^(~|@?[0-9]+(\.[0-9]+)?)(:|:[0-9]+(\.[0-9]+)?)?$'),
@@ -202,7 +212,8 @@ elif json_input['numFailedTests'] > 0:
     if verbose > 1:
         for testName in failed:
             output = '\nTEST: ' + testName + '\n' + '\n\n'.join(failed[testName])
-            print(output.replace('\n', '\\n') if args.no_newlines else output, end = '')
+            print(output.replace('\n', '\\n') if args.no_newlines else output,
+                  end = '')
     print('')
     sys.exit(2)
 
