@@ -186,7 +186,7 @@ def getAlertsInfo():
     return ' '.join(alertsInfo)
 
 # Exit logic with performance data
-if json_input['numFailedTests'] == 0 and json_input['numFailedTestSuites'] == 0:
+if json_input['numFailedTestSuites'] == 0 and json_input['numFailedTests'] == 0:
     print('{}: Passed {} of {} tests'.format(exitStatus[statusCode],
             json_input['numPassedTests'], json_input['numTotalTests']) +
        ('.' if statusCode == 0 else ' with ' + getAlertsInfo()) +
