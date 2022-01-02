@@ -1,4 +1,4 @@
-FROM selenium/standalone-chrome:3.141.59-xenon
+FROM selenium/standalone-chrome:4.1.1-20211217
 
 LABEL maintainer="Opsdis Consulting AB <info@opsdis.com>"
 
