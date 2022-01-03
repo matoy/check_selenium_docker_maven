@@ -36,7 +36,7 @@ parser.add_argument('-v', '--verbose', action='count', default=0,
 parser.add_argument("--timeout", type=int, default=300,
                     help="results waiting timeout in sec, default 300")
 parser.add_argument("--browser", type=str, default="chrome",
-                    help="container version to use, default 'chrome'")
+                    help="container version to use, default 'chrome', other possible options: 'firefox' or 'edge'")
 parser.add_argument('--no-newlines', action='store_true',
                     help="print newlines literally on multiline output")
 parser.add_argument("path", type=str, help="path to selenium test")
@@ -46,7 +46,7 @@ browser = args.browser
 timeout = abs(args.timeout)
 verbose = args.verbose
 os.chdir(path)
-if browser not in ['chrome', 'firefox', 'opera']:
+if browser not in ['chrome', 'firefox', 'edge']:
     print("Error: not allowed browser!")
     sys.exit(3)
 
