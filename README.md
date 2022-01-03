@@ -89,6 +89,7 @@ Image for an alternative supported browser:
 
 ```
 sed 's/chrome/firefox/' Dockerfile | docker build --tag opsdis/selenium-firefox-node-with-side-runner -
+sed 's/chrome/edge/' Dockerfile | docker build --tag opsdis/selenium-edge-node-with-side-runner -
 ```
 
 # Plugin #
