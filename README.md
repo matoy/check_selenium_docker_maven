@@ -82,7 +82,7 @@ Build the Docker image:
 ```
 git clone https://github.com/opsdis/check_selenium_docker
 cd check_selenium_docker/dockerimage/
-docker build . --tag opsdis/selenium-chrome-node-with-side-runner
+docker build . --tag opsdis/selenium-chrome-node-with-side-runner --no-cache
 ```
 
 Image for an alternative supported browser:
