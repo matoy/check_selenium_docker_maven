@@ -56,3 +56,11 @@
   [osdis/check_selenium_docker#6](https://github.com/opsdis/check_selenium_docker/issues/6)
 - exec_time calculation error in the absence of tests, issue
   [osdis/check_selenium_docker#5](https://github.com/opsdis/check_selenium_docker/issues/5)
+  
+## [2.1.0] - 2022-01-03
+
+### Added
+- support for container with Edge browser
+
+### Changed
+- use of latest Selenium image (v4 instead of v3)
