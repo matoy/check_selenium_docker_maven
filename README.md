@@ -147,7 +147,6 @@ EOT
 ```
 
 See [Command-line Runner / Run-time configuration](https://www.selenium.dev/selenium-ide/docs/en/introduction/command-line-runner#run-time-configuration).
-Unfortunately --config option seems to not work in latest image version of selenium, so .options and .side.yml won't be taken in account.
 
 The directory structure should look like this:
 
@@ -181,11 +180,12 @@ WARNING: Passed 2 of 2 tests with 0 critical and 1 warning alerts. Warning: Firs
 ```
 
 # Debug 
-You can add this code in check_selenium_docker.py before "detach = True":
-```
-ports={'4444/tcp':4444, '7900/tcp':7900},
-```
-This will allow you to connect to the selenium web interface (on port 4444) and VNC (on port 7900, pass: secret) to look at the executing scenario in the browser.
+You can get container output to get some debug details:
+export test-folder=/opt/plugins/custom/selenium/opsdis.com
+export image=opsdis/selenium-chrome-node-with-side-runner
+docker run -it --rm -p 4444:4444 -p 7900:7900 --shm-size="2g" -v $test-folder/sides:/sides -v $test-folder/out:/selenium-side-runner/out $image /opt/bin/entry_point.sh
+
+This will also allow you to connect to the selenium web interface (on port 4444) and VNC (on port 7900, pass: secret) to look at the executing scenario in the browser.
 
 # License 
 check_selenium_docker is licensed under GPL version 3.
