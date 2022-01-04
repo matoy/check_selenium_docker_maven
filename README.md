@@ -142,6 +142,7 @@ EOT
 
 cat <<EOT > /opt/plugins/custom/selenium/opsdis.com/sides/.side.yml
 capabilities:
+  browserName: chrome
   acceptInsecureCerts: true
 EOT
 ```
