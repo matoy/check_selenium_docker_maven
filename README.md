@@ -180,5 +180,13 @@ i.e., `PERFDATA: First Response Time = ${calculatedTime}s;120` could give for
 WARNING: Passed 2 of 2 tests with 0 critical and 1 warning alerts. Warning: First Response Time. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;; 'First Response Time'=150s;120
 ```
 
+# Debug 
+You can add this code in check_selenium_docker.py before "detach = True":
+```
+ports={'4444/tcp':4444, '7900/tcp':7900},
+    detach = True
+```
+This will allow you to connect to the selenium web interface (on port 4444) and VNC (on port 7900, pass: secret) to look at the executing scenario in the browser.
+
 # License 
 check_selenium_docker is licensed under GPL version 3.
