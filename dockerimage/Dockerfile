@@ -1,4 +1,5 @@
 FROM selenium/standalone-chrome:4.1.1-20211217
+#FROM selenium/standalone-chrome:3.141.59-xenon
 
 LABEL maintainer="Opsdis Consulting AB <info@opsdis.com>"
 
@@ -21,11 +22,18 @@ RUN mkdir /selenium-side-runner && chown -R seluser /selenium-side-runner
 WORKDIR /selenium-side-runner
 
 # Five seconds after starting container (as deamon) selenium-side-runner will run every /sides/*.side file
+#RUN sed -i "/^\/usr\/bin\/supervisord.*/a \
+#OPTS=('-c browserName=chrome --server http://localhost:4444/wd/hub' '--output-directory /selenium-side-runner/out')\n\
+#[[ -s /sides/.options ]] && readarray -t -O 2 OPTS < /sides/.options\n\
+#[[ -s /sides/.side.yml ]] && OPTS+=('--config /sides/.side.yml')\n\
+#sleep 5 && selenium-side-runner \${OPTS[@]} /sides/*.side &> /selenium-side-runner/out/output.log" \
+#/opt/bin/entry_point.sh
+
+# Five seconds after starting container (as deamon) selenium-side-runner will run every /sides/*.side file
+# Forcing acceptInsecureCerts=true capability to run selenium tests on web sites signed with internal PKI
+# because unfortunately --config (or --config-file) seems to NOT be working
 RUN sed -i "/^\/usr\/bin\/supervisord.*/a \
-OPTS=('-c browserName=chrome --server http://localhost:4444/wd/hub' '--output-directory /selenium-side-runner/out')\n\
-[[ -s /sides/.options ]] && readarray -t -O 2 OPTS < /sides/.options\n\
-[[ -s /sides/.side.yml ]] && OPTS+=('--config /sides/.side.yml')\n\
-sleep 5 && selenium-side-runner \${OPTS[@]} /sides/*.side &> /selenium-side-runner/out/output.log" \
+sleep 5 && selenium-side-runner -c \"browserName='chrome' acceptInsecureCerts=true\" --server 'http://localhost:4444/wd/hub' --output-directory '/selenium-side-runner/out' /sides/*.side &> /selenium-side-runner/out/output.log" \
 /opt/bin/entry_point.sh
 
 USER seluser
