@@ -59,6 +59,7 @@ yum install docker-ce
 
 # Add user 'monitor' to group 'docker'
 usermod -aG docker monitor
+other example with centreon engine that might launch service checks: usermod -aG docker centreon-engine
 
 # Start and enable docker
 systemctl start docker && systemctl enable docker
