@@ -57,6 +57,8 @@ yum-config-manager \
 
 yum install docker-ce
 
+yum install python-pip3
+
 # Add user 'monitor' to group 'docker'
 usermod -aG docker monitor
 
@@ -83,16 +85,23 @@ yum versionlock clear
 Build the Docker image:
 
 ```
-git clone https://github.com/opsdis/check_selenium_docker
+git clone https://github.com/matoy/check_selenium_docker
 cd check_selenium_docker/dockerimage/
+
+# eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
 docker build . --tag opsdis/selenium-chrome-node-with-side-runner --no-cache
 ```
 
 Image for an alternative supported browser:
 
 ```
+# eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
 sed 's/chrome/firefox/' Dockerfile | docker build --tag opsdis/selenium-firefox-node-with-side-runner -
+
+# eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
 docker build . -f Dockerfile-Edge --tag opsdis/selenium-edge-node-with-side-runner
+
+cd ..
 ```
 
 # Plugin #
@@ -100,8 +109,8 @@ docker build . -f Dockerfile-Edge --tag opsdis/selenium-edge-node-with-side-runn
 Copy the plugin to the plugin directory and make it executable:
 
 ```
-cp check_selenium_docker.py /opt/plugins/custom/
-chmod +x /opt/plugins/custom/check_selenium_docker.py
+cp check_selenium_docker.py /usr/lib/centreon/plugins/
+chmod +x /usr/lib/centreon/plugins/check_selenium_docker.py
 ```
 
 Add a new check_command to Monitor:
@@ -118,32 +127,32 @@ Create a new main directory (/opt/plugins/custom/selenium) in the main directory
 preferably named as the URL used in the test (/opt/plugins/custom/selenium/opsdis.com):
 
 ```
-mkdir /opt/plugins/custom/selenium
-mkdir /opt/plugins/custom/selenium/opsdis.com
+mkdir /usr/lib/centreon/plugins/selenium
+mkdir /usr/lib/centreon/plugins/selenium/mysite.com
 ```
 
 Create two subdirectories, out and sides:
 
 ```
-mkdir /opt/plugins/custom/selenium/opsdis.com/{out,sides}
+mkdir /usr/lib/centreon/plugins/selenium/mysite.com/{out,sides}
 ```
 
 Add the side-file to the sides subdirectory and modify the permissions:
 
 ```
-chmod 777 /opt/plugins/custom/selenium/opsdis.com/out/
-chmod 755 /opt/plugins/custom/selenium/opsdis.com/sides/opsdis.com.side
+chmod 777 /usr/lib/centreon/plugins/selenium/*/out/
+chmod 755 /usr/lib/centreon/plugins/selenium/*/sides/*.side
 ```
 
 Optionally add a runner local configuration file or additional command-line
 arguments to pass, for example:
 
 ```
-cat <<EOT > /opt/plugins/custom/selenium/opsdis.com/sides/.options
+cat <<EOT > //usr/lib/centreon/plugins/selenium/mysite.com/sides/.options
 --filter MyTestSuite
 EOT
 
-cat <<EOT > /opt/plugins/custom/selenium/opsdis.com/sides/.side.yml
+cat <<EOT > /usr/lib/centreon/plugins/selenium/mysite.com/sides/.side.yml
 capabilities:
   browserName: chrome
   acceptInsecureCerts: true
@@ -166,7 +175,7 @@ The directory structure should look like this:
 # Execute the plugin #
 
 ```
-/opt/plugins/custom/check_selenium_docker.py /opt/plugins/custom/selenium/opsdis.com
+/usr/lib/centreon/plugins/check_selenium_docker.py /usr/lib/centreon/plugins/selenium/mysite.com
 OK: Passed 2 of 2 tests. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;;
 ```
 
@@ -179,15 +188,15 @@ i.e., `PERFDATA: First Response Time = ${calculatedTime}s;120` could give for
 `calculatedTime = 150` (as a results of `exec script` SIDE command):
 
 ```
-/opt/plugins/custom/check_selenium_docker.py -vv /opt/plugins/custom/selenium/opsdis.com
+/usr/lib/centreon/plugins/check_selenium_docker.py -vv /usr/lib/centreon/plugins/selenium/mysite.com
 WARNING: Passed 2 of 2 tests with 0 critical and 1 warning alerts. Warning: First Response Time. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;; 'First Response Time'=150s;120
 ```
 
 # Debug 
 You can get container output to get some debug details:
-export test-folder=/opt/plugins/custom/selenium/opsdis.com
+export testfolder=/usr/lib/centreon/plugins/selenium/mysite.com
 export image=opsdis/selenium-chrome-node-with-side-runner
-docker run -it --rm -p 4444:4444 -p 7900:7900 --shm-size="2g" -v $test-folder/sides:/sides -v $test-folder/out:/selenium-side-runner/out $image /opt/bin/entry_point.sh
+docker run -it --rm -p 4444:4444 -p 7900:7900 --shm-size="2g" -v $testfolder/sides:/sides -v $testfolder/out:/selenium-side-runner/out $image /opt/bin/entry_point.sh
 
 This will also allow you to connect to the selenium web interface (on port 4444) and VNC (on port 7900, pass: secret) to look at the executing scenario in the browser.
 
