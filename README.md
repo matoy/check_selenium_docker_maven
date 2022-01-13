@@ -197,7 +197,7 @@ The directory structure should look like this:
 OK: Passed 2 of 2 tests. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;;
 
 # other examples:
-# with edge browser instead of Chrome
+# with Edge browser instead of Chrome
 /usr/lib/centreon/plugins/check_selenium_docker.py /usr/lib/centreon/plugins/selenium/mysite.com --browser=edge
 
 # with another existing grid server, for example located geographically elsewhere
