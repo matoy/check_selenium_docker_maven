@@ -150,10 +150,30 @@ cat <<EOT > //usr/lib/centreon/plugins/selenium/mysite.com/sides/.options
 --filter MyTestSuite
 EOT
 
+# to accept non trusted certs/CA
 cat <<EOT > /usr/lib/centreon/plugins/selenium/mysite.com/sides/.side.yml
 capabilities:
   browserName: chrome
   acceptInsecureCerts: true
+EOT
+
+# to make the browser use a specific proxy
+cat <<EOT > /usr/lib/centreon/plugins/selenium/mysite.com/sides/.side.yml
+capabilities:
+  browserName: chrome
+proxyType: manual
+proxyOptions:
+  http: http://proxyfqdn:port
+  https: http://proxyfqdn:port
+EOT
+
+# to use headless feature of the browser
+cat <<EOT > /usr/lib/centreon/plugins/selenium/mysite.com/sides/.side.yml
+capabilities:
+  browserName: chrome
+  chromeOptions:
+    args:
+      - headless
 EOT
 ```
 
