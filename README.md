@@ -60,10 +60,11 @@ yum install docker-ce
 yum install python-pip3
 
 # Add user 'centreon-engine' to group 'docker'
-usermod -aG docker monitor
+usermod -aG docker centreon-engine
 
 # Start and enable docker
 systemctl start docker && systemctl enable docker
+service centreon restart
 
 # Install the docker Python 3 module
 pip-3 install docker
