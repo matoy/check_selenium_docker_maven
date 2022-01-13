@@ -20,7 +20,7 @@ check_selenium_docker is a Nagios based plugin that spins up a Docker container,
 
 ### Highlights ###
 
-* Works with any Nagios compatible system such as ITRS OP5 Monitor, Icinga2 or Nagios.
+* Works with any Nagios compatible system such as Centreon. Centreon specific integration will be take in all examples below.
 * Every test is executed in a fresh environment. (https://www.selenium.dev/documentation/en/guidelines_and_recommendations/fresh_browser_per_test/)
 * Will remove the Docker container as soon as the test is complete. Requires no manual cleanup of stopped containers.
 * Any custom performance metrics is allowed.
@@ -59,11 +59,8 @@ yum install docker-ce
 
 yum install python-pip3
 
-# Add user 'monitor' to group 'docker'
+# Add user 'centreon-engine' to group 'docker'
 usermod -aG docker monitor
-
-# Other example with centreon engine that might launch service checks:
-usermod -aG docker centreon-engine
 
 # Start and enable docker
 systemctl start docker && systemctl enable docker
