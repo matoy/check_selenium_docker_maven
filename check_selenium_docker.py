@@ -49,7 +49,6 @@ path = args.path
 browser = args.browser
 gridfqdn = args.gridfqdn
 gridport = args.gridport
-browser = args.browser
 timeout = abs(args.timeout)
 verbose = args.verbose
 os.chdir(path)
