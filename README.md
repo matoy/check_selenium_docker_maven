@@ -225,7 +225,7 @@ docker run -it --rm -d -p 4444:4444 -p 7900:7900 --shm-size="2g" -e SE_NODE_MAX_
 
 Then connect to the 7900 port of this host with a browser, you'll get the VNC interface (password is secret by default) and execute the python check script:
 ```
-/usr/lib/centreon/plugins//check_selenium_docker.py /usr/lib/centreon/plugins/selenium/my-site.com/ --browser chrome --timeout 60 -vv --gridfqdn FQDN-OF-HOST-ABOVE --gridport 4444
+/usr/lib/centreon/plugins/check_selenium_docker.py /usr/lib/centreon/plugins/selenium/my-site.com/ --browser chrome --timeout 60 -vv --gridfqdn FQDN-OF-HOST-ABOVE --gridport 4444
 ```
 You'll be able to see what happens exactly in the running selenium scenarios.
 
