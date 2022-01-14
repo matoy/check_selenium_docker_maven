@@ -218,11 +218,23 @@ WARNING: Passed 2 of 2 tests with 0 critical and 1 warning alerts. Warning: Firs
 ```
 
 # Debug 
-You can get container output to get some debug details:
+You can launch the docker container of the official selenium grid server standalone image and exposing its 4444 & 7900 ports:
+```
+docker run -it --rm -d -p 4444:4444 -p 7900:7900 --shm-size="2g" -e SE_NODE_MAX_SESSIONS=8 -e SE_NODE_OVERRIDE_MAX_SESSIONS=true selenium/standalone-chrome:4.1.1-20211217
+```
+
+Then connect to the 7900 port of this host with a browser, you'll get the VNC interface (password is secret by default) and execute the python check script:
+```
+/usr/lib/centreon/plugins//check_selenium_docker.py /usr/lib/centreon/plugins/selenium/my-site.com/ --browser chrome --timeout 60 -vv --gridfqdn FQDN-OF-HOST-ABOVE --gridport 4444
+```
+You'll be able to see what happens exactly in the running selenium scenarios.
+
+You can go further by getting output inside the container itself bypassing the python script:
+```
 export testfolder=/usr/lib/centreon/plugins/selenium/mysite.com
 export image=opsdis/selenium-chrome-node-with-side-runner
 docker run -it --rm -p 4444:4444 -p 7900:7900 --shm-size="2g" -v $testfolder/sides:/sides -v $testfolder/out:/selenium-side-runner/out $image /opt/bin/entry_point.sh
-
+```
 This will also allow you to connect to the selenium web interface (on port 4444) and VNC (on port 7900, pass: secret) to look at the executing scenario in the browser.
 
 # License 
