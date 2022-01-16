@@ -108,7 +108,10 @@ while len(glob.glob(path + '/out/*.json')) < projectsNb and waitedfor <= timeout
     waitedfor += 1
 
 # Stop and remove container
-container.stop()
+try:
+    container.stop()
+except docker.errors.APIError as err:
+    pass
 
 # If no result was received after timeout exit with status unknown
 if waitedfor >= timeout:
