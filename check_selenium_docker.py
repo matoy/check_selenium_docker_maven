@@ -37,6 +37,8 @@ parser.add_argument("--timeout", type=int, default=300,
                     help="results waiting timeout in sec, default 300")
 parser.add_argument("--browser", type=str, default="chrome",
                     help="container version to use, default 'chrome', other possible options: 'firefox' or 'edge'")
+parser.add_argument("--gridproto", type=str, default="http",
+                    help="selenium grid protocol to use, default 'http', other possible option: 'https'")
 parser.add_argument("--gridfqdn", type=str, default="localhost",
                     help="selenium grid server to use, default 'localhost', other possible options: 'fqdn of your selenium grid server'")
 parser.add_argument("--gridport", type=str, default="4444",
@@ -47,6 +49,7 @@ parser.add_argument("path", type=str, help="path to selenium test")
 args = parser.parse_args()
 path = args.path
 browser = args.browser
+gridproto = args.gridproto
 gridfqdn = args.gridfqdn
 gridport = args.gridport
 timeout = abs(args.timeout)
@@ -94,7 +97,7 @@ container = client.containers.run(
         path + '/out': { 'bind': '/selenium-side-runner/out', 'mode': 'rw' },
         path + '/sides': { 'bind': '/sides', 'mode': 'rw' },
     },
-    environment={'GRID_FQDN':gridfqdn, 'GRID_PORT':gridport},
+    environment={'GRID_FQDN':gridfqdn, 'GRID_PORT':gridport, 'GRID_PROTO':gridproto},
     detach = True
 )
 
