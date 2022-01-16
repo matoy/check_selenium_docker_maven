@@ -37,7 +37,9 @@ RUN sed -i "/^\/usr\/bin\/supervisord.*/a \
 OPTS=('-c browserName=chrome')\n\
 [[ -s /sides/.options ]] && readarray -t -O 2 OPTS < /sides/.options\n\
 [[ -s /sides/.side.yml ]] && OPTS=('--config /sides/.side.yml')\n\
-sleep 5 && selenium-side-runner \${OPTS[@]} --server \$GRID_PROTO://\$GRID_FQDN:\$GRID_PORT/wd/hub --output-directory /selenium-side-runner/out /sides/*.side &> /selenium-side-runner/out/output.log" \
+[ \"\$GRID_FQDN\" == \"localhost\" ] && sleep 5 && selenium-side-runner \${OPTS[@]} --server \$GRID_PROTO://\$GRID_FQDN:\$GRID_PORT/wd/hub --output-directory /selenium-side-runner/out /sides/*.side &> /selenium-side-runner/out/output.log \n\
+[ \"\$GRID_FQDN\" == \"localhost\" ] || selenium-side-runner \${OPTS[@]} --server \$GRID_PROTO://\$GRID_FQDN:\$GRID_PORT/wd/hub --output-directory /selenium-side-runner\
+/out /sides/*.side &> /selenium-side-runner/out/output.log" \
 /opt/bin/entry_point.sh
 RUN sed -i "s/^\/usr\/bin\/supervisord/\[ \"\$GRID_FQDN\" == \"localhost\" ] \&\& \/usr\/bin\/supervisord/" /opt/bin/entry_point.sh
 
