@@ -1,11 +1,10 @@
-check_selenium_docker
+check_selenium_maven_docker
 -----------------------
 
 - [Overview](#overview)
   * [Highlights](#highlights)
 - [Workflow](#metrics-naming)
 - [System requirements](#system-requirements)
-  * [ITRS OP5 Monitor example](#itrs-op5-monitor-example)
 - [Docker image](#docker-image)
 - [Plugin](#plugin)
 - [Add new test scenarios](#add-new-test-scenarios)
@@ -16,7 +15,7 @@ check_selenium_docker
 # Overview #
 Synthetic website monitoring with Selenium and Docker.
 
-check_selenium_docker is a Nagios based plugin that spins up a Docker container, executes the test and, once the test is finished and the result has been reported back to the monitoring solution, removes the Docker container.
+check_selenium_maven_docker is a Nagios based plugin that spins up a Docker container, executes the test and, once the test is finished and the result has been reported back to the monitoring solution, removes the Docker container.
 
 ### Highlights ###
 
@@ -42,8 +41,6 @@ The following prerequisites must be installed on the server that will execute th
 
 * Python 3 with the docker module
 * docker-ce
-
-## ITRS OP5 Monitor example ##
 
 ```
 # Install docker-ce
@@ -83,21 +80,21 @@ yum versionlock clear
 Build the Docker image:
 
 ```
-git clone https://github.com/matoy/check_selenium_docker
-cd check_selenium_docker/dockerimage/
+git clone https://github.com/matoy/check_selenium_maven_docker
+cd check_selenium_maven_docker/dockerimage/
 
 # eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
-docker build . --tag opsdis/selenium-chrome-node-with-side-runner --no-cache
+docker build . --tag selenium-chrome-node-with-maven --no-cache
 ```
 
 Image for an alternative supported browser:
 
 ```
 # eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
-sed 's/chrome/firefox/' Dockerfile | docker build --tag opsdis/selenium-firefox-node-with-side-runner -
+sed 's/chrome/firefox/' Dockerfile | docker build --tag selenium-firefox-node-with-maven -
 
 # eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
-docker build . -f Dockerfile-Edge --tag opsdis/selenium-edge-node-with-side-runner
+docker build . -f Dockerfile-Edge --tag opsdis/selenium-edge-node-with-maven
 
 cd ..
 ```
@@ -107,15 +104,15 @@ cd ..
 Copy the plugin to the plugin directory and make it executable:
 
 ```
-cp check_selenium_docker.py /usr/lib/centreon/plugins/
-chmod +x /usr/lib/centreon/plugins/check_selenium_docker.py
+cp check_selenium_maven_docker.py /usr/lib/centreon/plugins/
+chmod +x /usr/lib/centreon/plugins/check_selenium_maven_docker.py
 ```
 
 Add a new check_command to Monitor:
 
 ```
-check_selenium_docker
-$USER1$/custom/check_selenium_docker.py $ARG1$
+check_selenium_maven_docker
+$USER1$/custom/check_maven_selenium_docker.py $ARG1$
 ```
 
 
@@ -193,15 +190,15 @@ The directory structure should look like this:
 # Execute the plugin #
 
 ```
-/usr/lib/centreon/plugins/check_selenium_docker.py /usr/lib/centreon/plugins/selenium/mysite.com
+/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/mysite.com
 OK: Passed 2 of 2 tests. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;;
 
 # other examples:
 # with Edge browser instead of Chrome
-/usr/lib/centreon/plugins/check_selenium_docker.py /usr/lib/centreon/plugins/selenium/mysite.com --browser=edge
+/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/mysite.com --browser=edge
 
 # with another existing grid server, for example located geographically elsewhere
-/usr/lib/centreon/plugins/check_selenium_docker.py /usr/lib/centreon/plugins/selenium/mysite.com --gridproto https --gridfqdn mygridserver --gridport 443
+/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/mysite.com --gridfqdn mygridserver
 ```
 
 # Performance metrics #
@@ -213,7 +210,7 @@ i.e., `PERFDATA: First Response Time = ${calculatedTime}s;120` could give for
 `calculatedTime = 150` (as a results of `exec script` SIDE command):
 
 ```
-/usr/lib/centreon/plugins/check_selenium_docker.py -vv /usr/lib/centreon/plugins/selenium/mysite.com
+/usr/lib/centreon/plugins/check_selenium_maven_docker.py -vv /usr/lib/centreon/plugins/selenium/mysite.com
 WARNING: Passed 2 of 2 tests with 0 critical and 1 warning alerts. Warning: First Response Time. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;; 'First Response Time'=150s;120
 ```
 
@@ -225,17 +222,17 @@ docker run -it --rm -d -p 4444:4444 -p 7900:7900 --shm-size="2g" -e SE_NODE_MAX_
 
 Then connect to the 7900 port of this host with a browser, you'll get the VNC interface (password is secret by default) and execute the python check script:
 ```
-/usr/lib/centreon/plugins/check_selenium_docker.py /usr/lib/centreon/plugins/selenium/my-site.com/ --browser chrome --timeout 60 -vv --gridfqdn FQDN-OF-HOST-ABOVE --gridport 4444
+/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/my-site.com/ --browser chrome --timeout 60 -vv --gridfqdn FQDN-OF-HOST-ABOVE
 ```
 You'll be able to see what happens exactly in the running selenium scenarios.
 
 You can go further by getting output inside the container itself bypassing the python script:
 ```
 export testfolder=/usr/lib/centreon/plugins/selenium/mysite.com
-export image=opsdis/selenium-chrome-node-with-side-runner
+export image=selenium-chrome-node-with-maven
 docker run -it --rm -p 4444:4444 -p 7900:7900 --shm-size="2g" -v $testfolder/sides:/sides -v $testfolder/out:/selenium-side-runner/out $image /opt/bin/entry_point.sh
 ```
 This will also allow you to connect to the selenium web interface (on port 4444) and VNC (on port 7900, pass: secret) to look at the executing scenario in the browser.
 
 # License 
-check_selenium_docker is licensed under GPL version 3.
+check_selenium_maven_docker is licensed under GPL version 3.
