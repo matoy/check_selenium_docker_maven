@@ -94,7 +94,7 @@ Image for an alternative supported browser:
 sed 's/chrome/firefox/' Dockerfile | docker build --tag selenium-firefox-node-with-maven -
 
 # eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
-docker build . -f Dockerfile-Edge --tag opsdis/selenium-edge-node-with-maven
+docker build . -f Dockerfile-Edge --tag selenium-edge-node-with-maven
 
 cd ..
 ```
