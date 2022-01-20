@@ -215,18 +215,13 @@ WARNING: Passed 2 of 2 tests with 0 critical and 1 warning alerts. Warning: Firs
 ```
 
 # Debug 
-You can launch the docker container of the official selenium grid server standalone image and exposing its 4444 & 7900 ports:
+You can execute the script with the --debug true parameter ; this will result the docker container to be executing with exposing its 4444 & 7900 ports:
 ```
-docker run -it --rm -d -p 4444:4444 -p 7900:7900 --shm-size="2g" -e SE_NODE_MAX_SESSIONS=8 -e SE_NODE_OVERRIDE_MAX_SESSIONS=true selenium/standalone-chrome:4.1.1-20211217
+/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/my-site.com/ --browser chrome --timeout 60 -vv --debug true
 ```
+Then connect to the 7900 port of your host running the script with a browser, you'll get the VNC interface (password is secret by default) and see what is being made in the browser.
 
-Then connect to the 7900 port of this host with a browser, you'll get the VNC interface (password is secret by default) and execute the python check script:
-```
-/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/my-site.com/ --browser chrome --timeout 60 -vv --gridfqdn FQDN-OF-HOST-ABOVE
-```
-You'll be able to see what happens exactly in the running selenium scenarios.
-
-You can go further by getting output inside the container itself bypassing the python script:
+You can go further by getting output inside the container itself:
 ```
 export testfolder=/usr/lib/centreon/plugins/selenium/mysite.com
 export image=selenium-chrome-node-with-maven
