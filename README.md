@@ -114,8 +114,8 @@ mkdir /usr/lib/centreon/plugins/selenium/mysite.com
 
 Inside this folder, put what is expected by maven.
 Make sure to create a "out" folder and chmod it to 777.  
-You can find a sample here: https://github.com/matoy/junit-selenium-sample
-the pom.xml file and other resources should be placed in your /usr/lib/centreon/plugins/selenium/mysite.com folder:
+You can find a sample here: https://github.com/matoy/junit-selenium-sample  
+the pom.xml file and other resources should be placed in your /usr/lib/centreon/plugins/selenium/mysite.com which is 'junit-selenium-sample' in this example:
 
 ```
 cd /usr/lib/centreon/plugins/selenium/
@@ -140,15 +140,15 @@ use: --gridfqdn mygridserver
 # Debug 
 You can execute the script with the --debug true parameter ; this will result the docker container to be executing with exposing its 4444 & 7900 ports:
 ```
-/usr/lib/centreon/plugins/check_selenium_maven_docker.py --path /usr/lib/centreon/plugins/selenium/mysite.com/ --mavenphase test --mavenenv single --mavenscenario "mytest" --mavenlocale fr_fr --mavenreport "surefire-reports/TEST-com.lambdatest.MySiteTest.xml" --browser chrome --timeout 30 --debug true
+/usr/lib/centreon/plugins/check_selenium_maven_docker.py --path /usr/lib/centreon/plugins/selenium/junit-selenium-sample/ --mavenphase test --mavenenv single --mavenscenario "mytest" --mavenlocale fr_fr --mavenreport "surefire-reports/TEST-com.lambdatest.MySiteTest.xml" --browser chrome --timeout 30 --debug true
 ```
 Then connect to the 7900 port of your host running the script with a browser, you'll get the VNC interface (password is secret by default) and see what is being made in the browser.
 
 You can go further by getting output inside the container itself:
 ```
-export testfolder=/usr/lib/centreon/plugins/selenium/mysite.com
+export testfolder=/usr/lib/centreon/plugins/selenium/junit-selenium-sample/
 export image=selenium-chrome-node-with-maven
-docker run -it --rm -p 4444:4444 -p 7900:7900 --shm-size="2g" -e MAVEN_phase="test" -e MAVEN_environment="single" -e MAVEN_cucumberFilterTags="mytest" -e MAVEN_locale="fr_fr" -e MAVEN_reportxmlfile="surefire-reports/TEST-com.lambdatest.MySiteTest.xml" -v $testfolder/:/maven $image /opt/bin/entry_point.sh
+docker run -it --rm -p 4444:4444 -p 7900:7900 --shm-size="2g" -e MAVEN_phase="test" -e MAVEN_environment="single" -e MAVEN_cucumberFilterTags="mytest" -e MAVEN_locale="fr_fr" -e MAVEN_reportxmlfile="surefire-reports/TEST-com.lambdatest.MySiteTest.xml" -v $testfolder:/maven $image /opt/bin/entry_point.sh
 ```
 
 # License 
