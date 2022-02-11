@@ -128,6 +128,7 @@ chmod 777 junit-selenium-sample/out
 
 ```
 /usr/lib/centreon/plugins/check_selenium_maven_docker.py --path /usr/lib/centreon/plugins/selenium/junit-selenium-sample/ --mavenphase test --mavenenv single --mavenscenario "mytest" --mavenlocale fr_fr --mavenreport "surefire-reports/TEST-com.lambdatest.MySiteTest.xml" --browser chrome --timeout 30
+CRITICAL: Failed 0 and Error 1 of 1 tests (com.lambdatest.MySiteTest/mysite). | 'passed'=0;;1:;0;1 'failed'=0;;~:0;0;1 'exec_time'=4.651s;;;;
 
 # other examples:
 # with Edge browser instead of Chrome
