@@ -113,7 +113,7 @@ mkdir /usr/lib/centreon/plugins/selenium/mysite.com
 ```
 
 Inside this folder, put what is expected by maven.
-Make sure to create a "out" folder and chmod it to 777.
+Make sure to create a "out" folder and chmod it to 777.  
 You can find a sample here: https://github.com/matoy/junit-selenium-sample
 the pom.xml file and other resources should be placed in your /usr/lib/centreon/plugins/selenium/mysite.com folder:
 
