@@ -24,18 +24,6 @@ check_selenium_maven_docker is a Nagios based plugin that spins up a Docker cont
 * Will remove the Docker container as soon as the test is complete. Requires no manual cleanup of stopped containers.
 * Any custom performance metrics is allowed.
 
-# Workflow #
-
-Install Selenium IDE for Chrome (https://selenium.dev/downloads).
-
-Record your test.
-
-Export the test and copy the .side file to the server that will run the docker image.
-
-A Docker container will execute the test and report the test results back to the monitoring system.
-
-![Workflow](img/selenium_docker.png)
-
 # System requirements #
 The following prerequisites must be installed on the server that will execute the plugin.
 
@@ -64,7 +52,7 @@ systemctl start docker && systemctl enable docker
 service centreon restart
 
 # Install the docker Python 3 module
-pip-3 install docker
+pip-3 install docker xmltodict
 
 # (Optional) Add versionlock to docker-ce
 yum install yum-plugin-versionlock
@@ -85,6 +73,8 @@ cd check_selenium_maven_docker/dockerimage/
 
 # eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
 docker build . --tag selenium-chrome-node-with-maven --no-cache
+
+cd ..
 ```
 
 Image for an alternative supported browser:
@@ -92,11 +82,7 @@ Image for an alternative supported browser:
 ```
 # eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
 sed 's/chrome/firefox/' Dockerfile | docker build --tag selenium-firefox-node-with-maven -
-
-# eventually add --build-arg http_proxy=http://yourproxyfqdn:port/ if required
-docker build . -f Dockerfile-Edge --tag selenium-edge-node-with-maven
-
-cd ..
+sed 's/chrome/edge/' Dockerfile | docker build --tag selenium-edge-node-with-maven -
 ```
 
 # Plugin #
@@ -112,79 +98,30 @@ Add a new check_command to Monitor:
 
 ```
 check_selenium_maven_docker
-$USER1$/custom/check_maven_selenium_docker.py $ARG1$
+$CENTREONPLUGINS$/check_selenium_maven_docker.py --path $_SERVICECHECKFOLDER$ --browser $_SERVICEBROWSER$ --timeout $_SERVICETIMEOUT$ --gridfqdn $_SERVICEGRIDFQDN$ --mavenphase '$_SERVICEMAVENPHASE$' --mavenenv '$_SERVICEMAVENENV$' --mavenscenario '$_SERVICEMAVENSCENARIO$' --mavenlocale '$_SERVICEMAVENLOCALE$' --mavenreport '$_SERVICEMAVENREPORT$' -vv $_SERVICEOPTIONS$ $_HOSTOPTIONS$
 ```
 
 
 # Add new test scenarios #
 
-Create a new main directory (/opt/plugins/custom/selenium) in the main directory create a new directory 
-preferably named as the URL used in the test (/opt/plugins/custom/selenium/opsdis.com):
+Create a new main directory (/usr/lib/centreon/plugins/selenium) in the main directory create a new folder 
+preferably named as the URL used in the test (/usr/lib/centreon/plugins/selenium/mysite.com):
 
 ```
 mkdir /usr/lib/centreon/plugins/selenium
 mkdir /usr/lib/centreon/plugins/selenium/mysite.com
 ```
 
-Create two subdirectories, out and sides:
+Inside this folder, put what is expected by maven.
+Make sure to create a "out" folder and chmod it to 777.
+You can find a sample here: https://github.com/matoy/junit-selenium-sample
+the pom.xml file and other resources should be placed in your /usr/lib/centreon/plugins/selenium/mysite.com folder:
 
 ```
-mkdir /usr/lib/centreon/plugins/selenium/mysite.com/{out,sides}
-```
-
-Add the side-file to the sides subdirectory and modify the permissions:
-
-```
-chmod 777 /usr/lib/centreon/plugins/selenium/*/out/
-chmod 755 /usr/lib/centreon/plugins/selenium/*/sides/*.side
-```
-
-Optionally add a runner local configuration file or additional command-line
-arguments to pass, for example:
-
-```
-cat <<EOT > //usr/lib/centreon/plugins/selenium/mysite.com/sides/.options
---filter MyTestSuite
-EOT
-
-# to accept non trusted certs/CA
-cat <<EOT > /usr/lib/centreon/plugins/selenium/mysite.com/sides/.side.yml
-capabilities:
-  browserName: chrome
-  acceptInsecureCerts: true
-EOT
-
-# to make the browser use a specific proxy
-cat <<EOT > /usr/lib/centreon/plugins/selenium/mysite.com/sides/.side.yml
-capabilities:
-  browserName: chrome
-proxyType: manual
-proxyOptions:
-  http: http://proxyfqdn:port
-  https: http://proxyfqdn:port
-EOT
-
-# to use headless feature of the browser
-cat <<EOT > /usr/lib/centreon/plugins/selenium/mysite.com/sides/.side.yml
-capabilities:
-  browserName: chrome
-  chromeOptions:
-    args:
-      - headless
-EOT
-```
-
-See [Command-line Runner / Run-time configuration](https://www.selenium.dev/selenium-ide/docs/en/introduction/command-line-runner#run-time-configuration).
-
-The directory structure should look like this:
-
-```
-├── opsdis.com
-│   ├── out
-│   └── sides
-│       └── opsdis.com.side
-│       └── .side.yml
-│       └── .options
+cd /usr/lib/centreon/plugins/selenium/
+git clone https://github.com/matoy/junit-selenium-sample
+mkdir junit-selenium-sample/out
+chmod 777 junit-selenium-sample/out
 ```
 
 # Execute the plugin #
