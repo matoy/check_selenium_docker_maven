@@ -1,7 +1,4 @@
 FROM selenium/standalone-chrome:4.1.1-20211217
-#FROM selenium/standalone-chrome:3.141.59-xenon
-
-LABEL maintainer="Opsdis Consulting AB <info@opsdis.com>"
 
 # selenium container leaves us as user 'seluser', but we need to install more stuff
 USER root
@@ -11,35 +8,30 @@ RUN apt-get -qqy update \
   && curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash - \
   && apt-get -qqy --no-install-recommends install \
     nodejs \
+    maven \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-RUN npm install -g selenium-side-runner
+RUN mkdir /maven && chown -R seluser /maven
+VOLUME [ "/maven" ]
 
-RUN mkdir /sides && chown -R seluser /sides
-VOLUME [ "/sides" ]
-
-RUN mkdir /selenium-side-runner && chown -R seluser /selenium-side-runner
-WORKDIR /selenium-side-runner
-
-# Five seconds after starting container (as deamon) selenium-side-runner will run every /sides/*.side file
-#RUN sed -i "/^\/usr\/bin\/supervisord.*/a \
-#OPTS=('-c browserName=chrome --server http://localhost:4444/wd/hub' '--output-directory /selenium-side-runner/out')\n\
-#[[ -s /sides/.options ]] && readarray -t -O 2 OPTS < /sides/.options\n\
-#[[ -s /sides/.side.yml ]] && OPTS+=('--config /sides/.side.yml')\n\
-#sleep 5 && selenium-side-runner \${OPTS[@]} /sides/*.side &> /selenium-side-runner/out/output.log" \
-#/opt/bin/entry_point.sh
+RUN mkdir /maven-temp && chown -R seluser /maven-temp
+WORKDIR /maven-temp/
 
 # Five seconds after starting container (as deamon) selenium-side-runner will run every /sides/*.side file
 ENV GRID_FQDN=localhost
-ENV GRID_PORT=4444
-ENV GRID_PROTO=http
+ENV MAVEN_phase="clean verify"
+ENV MAVEN_rerunFailingTestsCount=1
+ENV MAVEN_locale=fr_fr
+ENV MAVEN_environment=myenv
+ENV MAVEN_cucumberFilterTags=@mytest
+ENV MAVEN_reportxmlfile=reports/mytest.cucumber.RunTest.xml
+
 RUN sed -i "/^\/usr\/bin\/supervisord.*/a \
-OPTS=('-c browserName=chrome')\n\
-[[ -s /sides/.options ]] && readarray -t -O 2 OPTS < /sides/.options\n\
-[[ -s /sides/.side.yml ]] && OPTS=('--config /sides/.side.yml')\n\
-[ \"\$GRID_FQDN\" == \"localhost\" ] && sleep 5 && selenium-side-runner \${OPTS[@]} --server \$GRID_PROTO://\$GRID_FQDN:\$GRID_PORT/wd/hub --output-directory /selenium-side-runner/out /sides/*.side &> /selenium-side-runner/out/output.log \n\
-[ \"\$GRID_FQDN\" == \"localhost\" ] || selenium-side-runner \${OPTS[@]} --server \$GRID_PROTO://\$GRID_FQDN:\$GRID_PORT/wd/hub --output-directory /selenium-side-runner\
-/out /sides/*.side &> /selenium-side-runner/out/output.log" \
+[ -d /maven/out/maven-repository ] || mkdir /maven/out/maven-repository \n\
+ln -s /maven/out/maven-repository /home/seluser/.m2 \n\
+cp -R /maven/* ./ \n\
+[ \"\$GRID_FQDN\" == \"localhost\" ] && sleep 5 && mvn -B \$MAVEN_phase -f ./pom.xml -Dfailsafe.rerunFailingTestsCount=\$MAVEN_rerunFailingTestsCount -Dlocale=\$MAVEN_locale -Denvironment=\$MAVEN_environment -Dcucumber.filter.tags=\$MAVEN_cucumberFilterTags && cp ./target/\$MAVEN_reportxmlfile /maven/out/\$MAVEN_environment-\$MAVEN_locale-\$MAVEN_cucumberFilterTags.xml \n\
+[ \"\$GRID_FQDN\" == \"localhost\" ] ||  mvn -B \$MAVEN_phase -f ./pom.xml -Dfailsafe.rerunFailingTestsCount=\$MAVEN_rerunFailingTestsCount -Dlocale=\$MAVEN_locale -Denvironment=\$MAVEN_environment -Dcucumber.filter.tags=\$MAVEN_cucumberFilterTags && cp ./target/\$MAVEN_reportxmlfile /maven/out/\$MAVEN_environment-\$MAVEN_locale-\$MAVEN_cucumberFilterTags.xml" \
 /opt/bin/entry_point.sh
 RUN sed -i "s/^\/usr\/bin\/supervisord/\[ \"\$GRID_FQDN\" == \"localhost\" ] \&\& \/usr\/bin\/supervisord/" /opt/bin/entry_point.sh
 
