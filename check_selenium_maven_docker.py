@@ -143,7 +143,7 @@ if failuresNb == 0 and errorsNb == 0:
     print('OK: Passed {} of {} tests in {}s ({}/{}).'.format(passedNb, testsNb, exec_time, testcaseClassname, testcaseName) + " | " + perfData)
     sys.exit(0)
 
-elif failuresNb > 0:
+elif failuresNb > 0 or errorsNb > 0:
     print('CRITICAL: Failed {} and Error {} of {} tests ({}/{}).'.format(failuresNb, errorsNb, testsNb, testcaseClassname, testcaseName) + " | " + perfData)
     sys.exit(2)
 
