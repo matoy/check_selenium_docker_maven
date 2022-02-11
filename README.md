@@ -127,34 +127,20 @@ chmod 777 junit-selenium-sample/out
 # Execute the plugin #
 
 ```
-/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/mysite.com
-OK: Passed 2 of 2 tests. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;;
+/usr/lib/centreon/plugins/check_selenium_maven_docker.py --path /usr/lib/centreon/plugins/selenium/mysite.com/ --mavenphase test --mavenenv single --mavenscenario "mytest" --mavenlocale fr_fr --mavenreport "surefire-reports/TEST-com.lambdatest.xml" --browser chrome --timeout 30
 
 # other examples:
 # with Edge browser instead of Chrome
-/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/mysite.com --browser=edge
+use: --browser edge
 
 # with another existing grid server, for example located geographically elsewhere
-/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/mysite.com --gridfqdn mygridserver
-```
-
-# Performance metrics #
-
-Console output (Selenium IDE `echo` command) is parsed for additional custom
-metrics marked with  `PERFDATA: ` prefix and guidelines compliant expression
-for [Performance data](https://nagios-plugins.org/doc/guidelines.html#AEN200),
-i.e., `PERFDATA: First Response Time = ${calculatedTime}s;120` could give for 
-`calculatedTime = 150` (as a results of `exec script` SIDE command):
-
-```
-/usr/lib/centreon/plugins/check_selenium_maven_docker.py -vv /usr/lib/centreon/plugins/selenium/mysite.com
-WARNING: Passed 2 of 2 tests with 0 critical and 1 warning alerts. Warning: First Response Time. | 'passed'=2;;2:;0;2 'failed'=0;;~:0;0;2 'exec_time'=6s;;;; 'First Response Time'=150s;120
+use: --gridfqdn mygridserver
 ```
 
 # Debug 
 You can execute the script with the --debug true parameter ; this will result the docker container to be executing with exposing its 4444 & 7900 ports:
 ```
-/usr/lib/centreon/plugins/check_selenium_maven_docker.py /usr/lib/centreon/plugins/selenium/my-site.com/ --browser chrome --timeout 60 -vv --debug true
+/usr/lib/centreon/plugins/check_selenium_maven_docker.py --path /usr/lib/centreon/plugins/selenium/mysite.com/ --mavenphase test --mavenenv single --mavenscenario "@mytest" --mavenlocale fr_fr --mavenreport "surefire-reports/TEST-com.lambdatest.xml" --browser chrome --timeout 30 --debug true
 ```
 Then connect to the 7900 port of your host running the script with a browser, you'll get the VNC interface (password is secret by default) and see what is being made in the browser.
 
@@ -162,7 +148,7 @@ You can go further by getting output inside the container itself:
 ```
 export testfolder=/usr/lib/centreon/plugins/selenium/mysite.com
 export image=selenium-chrome-node-with-maven
-docker run -it --rm -p 4444:4444 -p 7900:7900 --shm-size="2g" -v $testfolder/sides:/sides -v $testfolder/out:/selenium-side-runner/out $image /opt/bin/entry_point.sh
+docker run -it --rm -p 4444:4444 -p 7900:7900 --shm-size="2g" -e MAVEN_phase="single" -e MAVEN_environment="single" -e MAVEN_cucumberFilterTags="@mytest" -e MAVEN_locale="fr_fr" -e MAVEN_reportxmlfile="surefire-reports/TEST-com.lambdatest.xml" -v $testfolder/:/maven $image /opt/bin/entry_point.sh
 ```
 
 # License 
